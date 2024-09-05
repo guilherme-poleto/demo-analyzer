@@ -1,0 +1,33 @@
+.match-list {
+    color: #ced7e0;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.match-list td {
+    padding: 10px;
+}
+
+.match-list th {
+    background-color: #25222c;
+    padding: 10px;
+}
+
+.match-list .row {
+    border: 1px solid #2f2b38;
+}
+
+.match-list .end {
+    text-align: end;
+    width: 5%;
+}
+
+.match-list .start {
+    text-align: start;
+}
+
+.match-list button {
+    font-size: 14px;
+    color: #ced7e0;
+    background-color: #f84982;
+}
