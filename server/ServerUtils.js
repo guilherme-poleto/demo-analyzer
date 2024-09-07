@@ -1,16 +1,17 @@
 import { parseEvent, parseTicks, parseHeader } from "@laihoe/demoparser2";
 import http from "http";
 import fs from "fs";
-import unbzip2Stream from "unbzip2-stream";
 import { execFile as execCallback } from "node:child_process";
 import { promisify } from "node:util";
 
 export default class ServerUtils {
     static async execBoiler() {
         const execFile = promisify(execCallback);
-        return execFile("./boiler/bin-linux/boiler-writter", [
-            "./boiler/match.info",
-        ]);
+        const filePath =
+            this.getOS() == "linux"
+                ? "./boiler/bin-linux/boiler-writter"
+                : "./boiler/bin-win/boiler-writter";
+        return execFile(filePath, ["./boiler/match.info"]);
     }
 
     static getMatchResult = (pathToDemo) => {
@@ -50,11 +51,8 @@ export default class ServerUtils {
             file.on("finish", async () => {
                 file.close();
                 console.log("Download concluído.");
-                await this.decompressFile(outputPath, filePath);
-                resolve({
-                    code: 200,
-                    msg: "Demo file was downloaded and parsed sucessfully.",
-                });
+                const res = await this.decompressFile(outputPath, filePath);
+                resolve(res);
             });
 
             http.get(match.demoUrl, (response) => {
@@ -72,21 +70,33 @@ export default class ServerUtils {
 
     static decompressFile(filePath, outputPath) {
         return new Promise((resolve, reject) => {
-            const readStream = fs
-                .createReadStream(filePath)
-                .pipe(unbzip2Stream())
-                .pipe(fs.createWriteStream(outputPath));
-
-            readStream.on("finish", async () => {
-                readStream.close();
-                console.log("Decompression finished.");
-                this.deleteFile(filePath);
-                resolve();
-            });
+            execCallback(
+                "python3",
+                ["decompress.py", filePath, outputPath],
+                (error, stdout) => {
+                    this.deleteFile(filePath);
+                    if (error) {
+                        reject({
+                            code: 500,
+                            msg: "Error while decompressing.",
+                        });
+                    }
+                    console.log(stdout);
+                    resolve({
+                        code: 200,
+                        msg: "Demo file was downloaded and parsed sucessfully.",
+                    });
+                }
+            );
         });
     }
 
     static deleteFile(filePath) {
         fs.unlinkSync(filePath);
+        console.log(".bz2 file deleted");
+    }
+
+    static getOS() {
+        return process.platform;
     }
 }

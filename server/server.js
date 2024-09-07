@@ -13,7 +13,6 @@ app.use(express.json());
 const PORT = 5000;
 
 const dbUrl = process.env.DB_URI;
-console.log(dbUrl);
 const db = new DBConnection(dbUrl);
 
 app.get("/get-match-details", async (req, res) => {
@@ -42,7 +41,6 @@ app.get("/fetch-new-matches", async (req, res) => {
 
     for (let match of matchDataList) {
         const roundStats = match.roundstatsall[match.roundstatsall.length - 1];
-        console.log(roundStats);
         const newMatch = new db.Match({
             ID: match.matchid.toString(),
             accountIds: roundStats.reservation.accountIds,
