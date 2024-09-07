@@ -15,23 +15,23 @@ export default function MainPage() {
   useEffect(() => {
     Promise.all([Utils.getLastMatches(), Utils.getDownloadedMatches()])
       .then(res => {
-        const lastRoundData = Utils.getLastRoundData(res[0].data, res[1].data);
-        console.log(lastRoundData);
-        setCurrMatches(lastRoundData);
+        const matchesData = Utils.getLastRoundData(res[0].data, res[1].data);
+        console.log(matchesData);
+        setCurrMatches(matchesData);
       })
       .catch(err => {
         setError(true);
-        throw new Error(err);
+        throw err;
       })
       .finally(() => setLoading(false));
   }, []);
 
   const handleDownloadButton = async (matchData) => {
     if (matchData.isDownloaded) {
-
+      //open match details
     } else {
       setLoading(true);
-      await Utils.downloadDemo(matchData.map);
+      await Utils.downloadDemo(matchData.ID);
       matchData.isDownloaded = true;
       const updatedMatches = currMatches.map((item) =>
         item.ID === matchData.ID ? { ...item, isDownloaded: true } : item
@@ -53,7 +53,7 @@ export default function MainPage() {
               <th>Kills</th>
               <th>Deaths</th>
               <th>K/D</th>
-              <th>Duration</th>
+              <th>Date</th>
               <th className='end'></th>
             </tr>
           </thead>
@@ -65,7 +65,7 @@ export default function MainPage() {
                   <td>{match.playerScore.kills}</td>
                   <td>{match.playerScore.deaths}</td>
                   <td>{match.playerScore.KD}</td>
-                  <td>{match.matchDuration} minutes</td>
+                  <td>{match.date}</td>
                   <td className='end'>
                     <button
                       onClick={() => handleDownloadButton(match)}>

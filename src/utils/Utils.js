@@ -9,19 +9,13 @@ class Utils {
     }
 
     static getLastRoundData(data, downloadedMatchesList) {
-        const matches = data.matches;
-        let res = [];
-        for (let match of matches) {
-            const lastRoundData = match.roundstatsall[match.roundstatsall.length - 1];
-            lastRoundData.playerIds = lastRoundData.reservation.accountIds.map(e => this.accountIdToSteamId(e));
-            lastRoundData.accountId = data.accountid;
-            lastRoundData.playerScore = this.getPlayerScore(lastRoundData);
-            lastRoundData.matchDuration = this.getMatchTime(match.matchtime);
-            lastRoundData.isDownloaded = downloadedMatchesList.includes(this.getFileName(lastRoundData.map));
-            lastRoundData.ID = uuidv4();
-            res.push(lastRoundData);
+        for (let match of data) {
+            match.playerIds = match.accountIds.map(e => this.accountIdToSteamId(e));
+            match.playerScore = this.getPlayerScore(match);
+            match.date = this.getMatchDate(match.matchtime);
+            match.isDownloaded = downloadedMatchesList.includes(match.demoFileName);
         }
-        return res;
+        return data;
     }
 
     static buildResultString(result, switchedTeams) {
@@ -38,34 +32,29 @@ class Utils {
 
     static getPlayerScore(matchData) {
         const accId = matchData.accountId;
-        const index = matchData.reservation.accountIds.findIndex(e => e == accId);
+        const index = matchData.accountIds.findIndex(e => e == accId);
         const kills = matchData.kills[index];
         const deaths = matchData.deaths[index];
         return { kills: kills, deaths: deaths, KD: (kills / deaths).toFixed(2) }
     }
 
-    static getMatchTime(time) {
+    static getMatchDate(time) {
         const date = new Date(time * 1000);
-        return date.getMinutes();
+        return date.toDateString();
     }
 
     static accountIdToSteamId(accId) {
         return new bignumber(accId).plus('76561197960265728') + "";
     }
 
-    static downloadDemo(url) {
+    static downloadDemo(id) {
         return axios.post(Constants.DOWNLOAD_DEMO, {
-            url: url
+            ID: id
         });
     }
 
     static getDownloadedMatches() {
         return axios.get(Constants.GET_DOWNLOADED_MATCHES);
-    }
-
-    static getFileName(url) {
-        const regex = /http:\/\/replay\d+\.valve\.net\/730\/(\d+_\d+\.dem)\.bz2/;
-        return url.match(regex)[1];
     }
 }
 
