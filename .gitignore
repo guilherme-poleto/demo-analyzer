@@ -1,3 +1,4 @@
 node_modules
 server/.env
 server/boiler/match.info
+server/demo-files

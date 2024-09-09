@@ -3,6 +3,8 @@ import http from "http";
 import fs from "fs";
 import { execFile as execCallback } from "node:child_process";
 import { promisify } from "node:util";
+import axios from "axios";
+import Constants from "./constants.js";
 
 export default class ServerUtils {
     static async execBoiler() {
@@ -13,27 +15,6 @@ export default class ServerUtils {
                 : "./boiler/bin-win/boiler-writter";
         return execFile(filePath, ["./boiler/match.info"]);
     }
-
-    static getMatchResult = (pathToDemo) => {
-        let gameEndTick = Math.max(
-            ...parseEvent(pathToDemo, "round_end").map((x) => x.tick)
-        );
-        let fields = [
-            "kills_total",
-            "deaths_total",
-            "mvps",
-            "headshot_kills_total",
-            "ace_rounds_total",
-            "score",
-            "team_rounds_total",
-        ];
-        return parseTicks(pathToDemo, fields, [gameEndTick]);
-    };
-
-    static getMapName = (pathToDemo) => {
-        console.log(parseHeader(pathToDemo));
-        return "";
-    };
 
     static async downloadFile(db, matchId) {
         const match = await db.getMatchById(matchId);

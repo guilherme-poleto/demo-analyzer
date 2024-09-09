@@ -1,0 +1,67 @@
+.score-header {
+    display: grid;
+    padding: 20px;
+    grid-gap: .75rem;
+    margin-bottom: 20px;
+    background-image: url(../../assets/images/cs2banner.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.match-result {
+    background-color: #19171e;
+    line-height: 1;
+    font-weight: 600;
+    width: max-content;
+    padding: 15px;
+    border-radius: 3px;
+    font-size: 50px;
+}
+
+.match-info-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.match-info {
+    background-color: #19171e;
+    line-height: 1;
+    font-weight: 600;
+    width: max-content;
+    padding: 15px;
+    border-radius: 3px;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+.score-table {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.scoreboard {
+    width: 100%;
+    border-spacing: 2px;
+}
+
+.scoreboard th, .scoreboard td {
+    text-align: start;
+    padding: 10px;
+    background: #25222c;
+    border-radius: 3px;
+    max-width: 100px;
+    overflow: hidden;
+}
+
+.avatar-column {
+    display: flex;
+    align-items: center;
+}
+
+.avatar {
+    border-radius: 50%;
+    height: 2rem;
+    margin-right: 1rem;
+}

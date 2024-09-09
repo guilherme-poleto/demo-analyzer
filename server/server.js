@@ -6,6 +6,7 @@ import { parseEvent, parseTicks, parseHeader } from "@laihoe/demoparser2";
 import ServerUtils from "./ServerUtils.js";
 import "dotenv/config";
 import DBConnection from "./db/db-connection.js";
+import Parser from "./parser.js";
 
 const app = express();
 app.use(cors());
@@ -23,8 +24,9 @@ app.get("/get-match-details", async (req, res) => {
         res.send("Match not found.");
         return;
     }
+    const scoreboard = await Parser.parseMatch(match);
     res.status(200);
-    res.json(match);
+    res.json(scoreboard);
 });
 
 app.get("/fetch-new-matches", async (req, res) => {
@@ -68,25 +70,8 @@ app.get("/get-matches", async (req, res) => {
     res.json(matches);
 });
 
-app.get("/get-crosshair", async (req, res) => {
-    const pathToDemo = "./src/assets/demo-test.dem";
-
-    let gameEndTick = Math.max(
-        ...parseEvent(pathToDemo, "round_end").map((x) => x.tick)
-    );
-    let players = parseTicks(pathToDemo, ["crosshair_code"], [gameEndTick]);
-
-    console.log(players);
-
-    res.json(players);
-});
-
 app.get("/get-match-result", async (req, res) => {
     res.json(ServerUtils.getMatchResult(pathToDemo));
-});
-
-app.get("/get-map", async (req, res) => {
-    res.json(ServerUtils.getMapName(pathToDemo));
 });
 
 app.get("/get-downloaded-matches", async (req, res) => {

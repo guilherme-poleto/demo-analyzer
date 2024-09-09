@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@laihoe/demoparser2": "^0.32.2",
-    "adm-zip": "^0.5.16",
     "axios": "^1.7.7",
     "bignumber.js": "^9.1.2",
     "child_process": "^1.0.2",
@@ -19,21 +18,19 @@
     "csgo-protobuf": "^3.0.1",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "extract-zip": "^2.0.1",
     "fs-extra": "^11.2.0",
     "mongoose": "^8.6.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.1",
-    "uuid": "^10.0.0"
+    "react-router-dom": "^6.26.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.9.0",
+    "@eslint/js": "^9.10.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "eslint": "^9.9.0",
-    "eslint-plugin-react": "^7.35.0",
+    "eslint": "^9.10.0",
+    "eslint-plugin-react": "^7.35.2",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
