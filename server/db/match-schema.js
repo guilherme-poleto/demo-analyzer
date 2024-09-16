@@ -13,7 +13,8 @@ const matchSchema = new mongoose.Schema({
   teamScores: { type: Object, required: true },
   headshots: { type: Object, required: true },
   matchtime: { type: Number, required: true },
-  accountId: { type: Number, required: true }
+  accountId: { type: Number, required: true },
+  parsedData: { type: Object, required: false }
 });
 
 export default matchSchema;

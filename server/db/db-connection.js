@@ -35,6 +35,13 @@ class DBConnection {
     getMatchById(id) {
         return this.Match.findOne({ ID: id });
     }
+
+    updateMatch(id, field) {
+        return this.Match.updateOne(
+            { ID: id },
+            { $set: field }
+        );
+    }
 }
 
 export default DBConnection;

@@ -2,6 +2,7 @@ import { parseEvent, parseTicks, parseHeader } from "@laihoe/demoparser2";
 import axios from "axios";
 import bignumber from "bignumber.js";
 import Constants from "./constants.js";
+import ServerUtils from "./ServerUtils.js";
 
 export default class Parser {
     static async parseMatch(match) {
@@ -64,6 +65,7 @@ export default class Parser {
             mapName: headerInfo.map_name,
             date: match.matchtime,
         };
+        ServerUtils.deleteFile(demoPath);
         return res;
     }
 

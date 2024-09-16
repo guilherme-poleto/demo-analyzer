@@ -21,7 +21,7 @@ export default function MatchPage() {
             })
             .then((res) => {
                 console.log(res.data);
-                setMatch(res.data);
+                setMatch(res.data.parsedData);
                 setLoading(false);
             });
     }, []);

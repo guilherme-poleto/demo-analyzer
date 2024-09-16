@@ -16,15 +16,9 @@ export default class ServerUtils {
         return execFile(filePath, ["./boiler/match.info"]);
     }
 
-    static async downloadFile(db, matchId) {
-        const match = await db.getMatchById(matchId);
+    static async downloadFile(match) {
         const filePath = `./demo-files/${match.demoFileName}`;
         return new Promise((resolve, reject) => {
-            if (fs.existsSync(filePath)) {
-                console.log("Demo file already downloaded.");
-                resolve({ code: 304, msg: "Demo file already downloaded." });
-            }
-
             const outputPath = `${filePath}.bz2`;
             console.log("Downloading to path:" + outputPath);
             const writer = fs.createWriteStream(outputPath);
@@ -70,8 +64,7 @@ export default class ServerUtils {
     }
 
     static deleteFile(filePath) {
-        fs.unlinkSync(filePath);
-        console.log(".bz2 file deleted");
+        fs.unlink(filePath, () => {});
     }
 
     static getOS() {

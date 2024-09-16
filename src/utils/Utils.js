@@ -6,23 +6,17 @@ class Utils {
         return axios.get(Constants.GET_MATCHES_URL);
     }
 
-    static getLastRoundData(data, downloadedMatchesList) {
+    static getLastRoundData(data) {
         for (let match of data) {
             match.playerScore = this.getPlayerScore(match);
             match.date = this.getMatchDate(match.matchtime);
-            match.isDownloaded = downloadedMatchesList.includes(
-                match.demoFileName
-            );
+            match.isAnalyzed = match.parsedData != undefined;
         }
         return data;
     }
 
     static buildResultString(result, switchedTeams) {
         return `${result[0]} - ${result[1]}`;
-    }
-
-    static getMatchData() {
-        return axios.get(Constants.GET_MATCH_DATA);
     }
 
     static getMapName() {
@@ -46,14 +40,10 @@ class Utils {
         return date.toDateString();
     }
 
-    static downloadDemo(id) {
-        return axios.post(Constants.DOWNLOAD_DEMO, {
+    static analyzeMatch(id) {
+        return axios.post(Constants.ANALYZE_MATCH, {
             ID: id,
         });
-    }
-
-    static getDownloadedMatches() {
-        return axios.get(Constants.GET_DOWNLOADED_MATCHES);
     }
 
     static fetchLastMatches() {
