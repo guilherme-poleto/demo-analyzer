@@ -27,24 +27,21 @@ export default class ServerUtils {
 
             const outputPath = `${filePath}.bz2`;
             console.log("Downloading to path:" + outputPath);
-            const file = fs.createWriteStream(outputPath);
+            const writer = fs.createWriteStream(outputPath);
 
-            file.on("finish", async () => {
-                file.close();
+            axios({
+                method: "get",
+                url: match.demoUrl,
+                responseType: "stream",
+            }).then((response) => {
+                response.data.pipe(writer);
+            });
+
+            writer.on("finish", async () => {
+                writer.close();
                 console.log("Download concluído.");
                 const res = await this.decompressFile(outputPath, filePath);
                 resolve(res);
-            });
-
-            http.get(match.demoUrl, (response) => {
-                if (response.statusCode !== 200) {
-                    return;
-                }
-                response.pipe(file);
-            }).on("error", (error) => {
-                fs.unlink(outputPath, () => {
-                    console.error(`Erro ao fazer download: ${error.message}`);
-                });
             });
         });
     }

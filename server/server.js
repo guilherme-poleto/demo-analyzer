@@ -2,7 +2,6 @@ import express from "express";
 import fs from "fs-extra";
 import { fromBinary, CMsgGCCStrike15_v2_MatchListSchema } from "csgo-protobuf";
 import cors from "cors";
-import { parseEvent, parseTicks, parseHeader } from "@laihoe/demoparser2";
 import ServerUtils from "./ServerUtils.js";
 import "dotenv/config";
 import DBConnection from "./db/db-connection.js";
