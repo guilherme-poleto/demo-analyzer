@@ -4,6 +4,7 @@ import "./MatchPage.css";
 import axios from "axios";
 import Constants from "../../utils/Constants";
 import Utils from "../../utils/Utils";
+import { BusyIndicator } from "../BusyIndicator";
 
 export default function MatchPage() {
     const { id } = useParams();
@@ -29,7 +30,7 @@ export default function MatchPage() {
     if (error) return <>Match not found.</>;
 
     return loading ? (
-        <>Loading...</>
+        <BusyIndicator></BusyIndicator>
     ) : (
         <>
             <div>
@@ -58,6 +59,13 @@ export default function MatchPage() {
     );
 }
 
+const handleAvatarClick = (steamId) => {
+    window.open(
+        `https://steamcommunity.com/profiles/${steamId}/`,
+        "_blank"
+    );
+};
+
 function ScoreTable(props) {
     const data =
         props.side == "team" ? props.data.teamData : props.data.enemyData;
@@ -77,20 +85,38 @@ function ScoreTable(props) {
                     </tr>
                 </thead>
                 <tbody>
-                    {data.map((value, index) => {
+                    {data.map((value) => {
                         return (
                             <tr key={value.steamid}>
-                                <td style={{width: '25%'}}>
+                                <td style={{ width: "25%" }}>
                                     <div className="avatar-column">
-                                        <img className="avatar" src={value.avatarUrl}></img>
+                                        <img
+                                            className="avatar"
+                                            src={value.avatarUrl}
+                                            onClick={() => {
+                                                handleAvatarClick(
+                                                    value.steamid
+                                                );
+                                            }}
+                                        ></img>
                                         <div>{value.name}</div>
                                     </div>
                                 </td>
-                                <td style={{width: '15%'}}>{value.kills_total}</td>
-                                <td style={{width: '15%'}}>{value.deaths_total}</td>
-                                <td style={{width: '15%'}}>{value.assists_total}</td>
-                                <td style={{width: '15%'}}>{Utils.getKDRatio(value)}</td>
-                                <td style={{width: '15%'}}>{Utils.getHsPercentage(value)}%</td>
+                                <td style={{ width: "15%" }}>
+                                    {value.kills_total}
+                                </td>
+                                <td style={{ width: "15%" }}>
+                                    {value.deaths_total}
+                                </td>
+                                <td style={{ width: "15%" }}>
+                                    {value.assists_total}
+                                </td>
+                                <td style={{ width: "15%" }}>
+                                    {Utils.getKDRatio(value)}
+                                </td>
+                                <td style={{ width: "15%" }}>
+                                    {Utils.getHsPercentage(value)}%
+                                </td>
                             </tr>
                         );
                     })}

@@ -38,7 +38,6 @@ const res = {
     T: t,
     user_team: userTeam,
 };
-console.log(res);
 
 function steamIdToAccountId(accId) {
     return new bignumber(accId).minus("76561197960265728") + "";

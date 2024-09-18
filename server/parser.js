@@ -12,7 +12,6 @@ export default class Parser {
         );
         const regex = /Valve Counter-Strike 2 (\w+) Server/;
         const headerInfo = parseHeader(demoPath);
-        console.log(headerInfo);
         const server = headerInfo.server_name.match(regex)[1];
 
         let fields = [

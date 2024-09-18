@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Utils from "../../utils/Utils";
 import "./MainPage.css";
+import { BusyIndicator } from "../BusyIndicator";
 
 export default function MainPage(props) {
     const navigate = useNavigate();
@@ -13,9 +14,7 @@ export default function MainPage(props) {
     useEffect(() => {
         Utils.getLastMatches()
             .then((res) => {
-                const matchesData = Utils.getLastRoundData(res.data);
-                console.log(matchesData);
-                setCurrMatches(matchesData);
+                updateMatchesTable(res.data);
             })
             .catch((err) => {
                 setError(true);
@@ -23,6 +22,11 @@ export default function MainPage(props) {
             })
             .finally(() => setLoading(false));
     }, []);
+
+    const updateMatchesTable = (data) => {
+        const matchesData = Utils.getLastRoundData(data);
+        setCurrMatches(matchesData);
+    }
 
     const handleAnalyzeButton = async (matchData) => {
         if (matchData.isAnalyzed) {
@@ -40,69 +44,64 @@ export default function MainPage(props) {
     };
 
     const handleFetchClick = async () => {
+        setLoading(true);
         await Utils.fetchLastMatches();
-        await Utils.getLastMatches();
+        const lastMatches = await Utils.getLastMatches();
+        updateMatchesTable(lastMatches.data);
+        setLoading(false);
     };
 
     if (error) return <div>Error</div>;
 
     return loading ? (
-        <div>Loading...</div>
+        <BusyIndicator></BusyIndicator>
     ) : (
-        <>
-            <div className="main">
-                <div className="match-list-container">
-                    <table className="match-list">
-                        <thead>
-                            <tr className="row">
-                                <th className="start">Score</th>
-                                <th>Kills</th>
-                                <th>Deaths</th>
-                                <th>K/D</th>
-                                <th>Date</th>
-                                <th className="end"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {currMatches.map((match, index) => {
-                                return (
-                                    <tr
-                                        key={index}
-                                        className="row"
-                                        style={{
-                                            cursor: match.isAnalyzed
-                                                ? "pointer"
-                                                : "default",
-                                        }}
+        <div className="match-list-container">
+            <table className="match-list">
+                <thead>
+                    <tr className="row">
+                        <th className="start">Score</th>
+                        <th>Kills</th>
+                        <th>Deaths</th>
+                        <th>K/D</th>
+                        <th>Date</th>
+                        <th className="end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {currMatches.map((match, index) => {
+                        return (
+                            <tr
+                                key={index}
+                                className="row"
+                                style={{
+                                    cursor: match.isAnalyzed
+                                        ? "pointer"
+                                        : "default",
+                                }}
+                            >
+                                <td className="start">
+                                    {Utils.buildResultString(match.teamScores)}
+                                </td>
+                                <td>{match.playerScore.kills}</td>
+                                <td>{match.playerScore.deaths}</td>
+                                <td>{match.playerScore.KD}</td>
+                                <td>{match.date}</td>
+                                <td className="end">
+                                    <button
+                                        onClick={() =>
+                                            handleAnalyzeButton(match)
+                                        }
                                     >
-                                        <td className="start">
-                                            {Utils.buildResultString(
-                                                match.teamScores
-                                            )}
-                                        </td>
-                                        <td>{match.playerScore.kills}</td>
-                                        <td>{match.playerScore.deaths}</td>
-                                        <td>{match.playerScore.KD}</td>
-                                        <td>{match.date}</td>
-                                        <td className="end">
-                                            <button
-                                                onClick={() =>
-                                                    handleAnalyzeButton(match)
-                                                }
-                                            >
-                                                {match.isAnalyzed
-                                                    ? ">"
-                                                    : "Analyze"}
-                                            </button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                    <button onClick={handleFetchClick}>Fetch</button>
-                </div>
-            </div>
-        </>
+                                        {match.isAnalyzed ? ">" : "Analyze"}
+                                    </button>
+                                </td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+            <button onClick={handleFetchClick}>Fetch</button>
+        </div>
     );
 }
