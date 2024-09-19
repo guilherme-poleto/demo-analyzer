@@ -15,6 +15,7 @@ export default function MainPage(props) {
         Utils.getLastMatches()
             .then((res) => {
                 updateMatchesTable(res.data);
+                console.log(res.data);
             })
             .catch((err) => {
                 setError(true);
@@ -26,7 +27,7 @@ export default function MainPage(props) {
     const updateMatchesTable = (data) => {
         const matchesData = Utils.getLastRoundData(data);
         setCurrMatches(matchesData);
-    }
+    };
 
     const handleAnalyzeButton = async (matchData) => {
         if (matchData.isAnalyzed) {
@@ -74,11 +75,6 @@ export default function MainPage(props) {
                             <tr
                                 key={index}
                                 className="row"
-                                style={{
-                                    cursor: match.isAnalyzed
-                                        ? "pointer"
-                                        : "default",
-                                }}
                             >
                                 <td className="start">
                                     {Utils.buildResultString(match.teamScores)}

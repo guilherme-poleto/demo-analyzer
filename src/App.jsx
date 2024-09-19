@@ -4,6 +4,7 @@ import MainPage from "./components/pages/MainPage";
 import { Layout } from "./components/Layout";
 import MatchPage from "./components/pages/MatchPage";
 import { AppProvider } from "./components/AppContext";
+import StatsPage from "./components/pages/Stats";
 
 function App() {
     return (
@@ -15,6 +16,10 @@ function App() {
                         <Route
                             path="/match-details/:id"
                             element={<MatchPage />}
+                        />
+                        <Route
+                            path="/stats"
+                            element={<StatsPage />}
                         />
                     </Route>
                 </Routes>

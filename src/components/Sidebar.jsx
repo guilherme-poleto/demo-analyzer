@@ -15,6 +15,9 @@ export const Sidebar = () => {
             case "twitter":
                 window.open("https://x.com/gui_poleto", "_blank");
                 break;
+            case "stats":
+                navigate("/stats");
+                break;
             case "steam":
                 window.open(
                     "https://steamcommunity.com/id/youngui_blessed/",
@@ -44,7 +47,15 @@ export const Sidebar = () => {
                                 handleIconClick("main");
                             }}
                         >
-                            <a>Matches</a>
+                            Matches
+                        </li>
+                        <li
+                            className="side-bar-list-item"
+                            onClick={() => {
+                                handleIconClick("stats");
+                            }}
+                        >
+                            Statistics
                         </li>
                     </ul>
                 </nav>

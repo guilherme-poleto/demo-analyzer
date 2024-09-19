@@ -1,5 +1,6 @@
 import Constants from "./Constants";
 import axios from "axios";
+import moment from "moment";
 
 class Utils {
     static getLastMatches() {
@@ -36,8 +37,8 @@ class Utils {
     }
 
     static getMatchDate(time) {
-        const date = new Date(time * 1000);
-        return date.toDateString();
+        const date = moment().unix(time * 1000);
+        return moment(time * 1000).format('DD/MM/YYYY');
     }
 
     static analyzeMatch(id) {
