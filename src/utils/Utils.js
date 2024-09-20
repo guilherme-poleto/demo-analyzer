@@ -24,7 +24,7 @@ class Utils {
         return axios.get(Constants.GET_MAP_NAME);
     }
 
-    static getPlayerScore(matchData) {
+    static getPlayerScore(matchData) { // do it before saving to db
         const accId = matchData.accountId;
         const index = matchData.accountIds.findIndex((e) => e == accId);
         const kills = matchData.kills[index];
@@ -33,11 +33,11 @@ class Utils {
             kills: kills,
             deaths: deaths,
             KD: (kills / deaths).toFixed(2),
+            hsRate: Math.round((matchData.headshots[index] / kills) * 100)
         };
     }
 
     static getMatchDate(time) {
-        const date = moment().unix(time * 1000);
         return moment(time * 1000).format('DD/MM/YYYY');
     }
 
@@ -58,6 +58,17 @@ class Utils {
     static getKDRatio(match) {
         return (match.kills_total / match.deaths_total).toFixed(2);
     }
+
+    static getScoreColor = (result) => {
+        switch (result) {
+            case "DRAW":
+                return "#fff";
+            case "VICTORY":
+                return "#00b087";
+            case "DEFEAT":
+                return "#de425b";
+        }
+    };
 }
 
 export default Utils;

@@ -36,11 +36,12 @@ class DBConnection {
         return this.Match.findOne({ ID: id });
     }
 
+    getAllParsedMatches(id) {
+        return this.Match.deleteMany({ parsedData: { $exists: true } });
+    }
+
     updateMatch(id, field) {
-        return this.Match.updateOne(
-            { ID: id },
-            { $set: field }
-        );
+        return this.Match.updateOne({ ID: id }, { $set: field });
     }
 }
 

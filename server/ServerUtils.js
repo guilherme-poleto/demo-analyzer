@@ -63,6 +63,29 @@ export default class ServerUtils {
         });
     }
 
+    static buildStats(matches) {
+        const result = { wr: { wins: 0, losses: 0 } };
+        matches.forEach((match) => {
+            if (match.result == "DEFEAT") result.wr.losses += 1;
+            if (match.result == "VICTORY") result.wr.wins += 1;
+        });
+        result.wr.percentage = `${Math.round(
+            (result.wr.wins / result.wr.losses) * 100
+        )}%`;
+        return result;
+    }
+
+    static getMatchResult(matchData, accId) {
+        if (matchData.teamScores[0] == matchData.teamScores[1]) return "DRAW";
+
+        const winner =
+            matchData.teamScores[0] > matchData.teamScores[1] ? 0 : 1;
+        const index = Math.floor(
+            matchData.reservation.accountIds.findIndex((el) => el == accId) / 5
+        );
+        return winner == index ? "VICTORY" : "DEFEAT";
+    }
+
     static deleteFile(filePath) {
         fs.unlink(filePath, () => {});
     }

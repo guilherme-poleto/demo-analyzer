@@ -74,11 +74,23 @@ app.get("/fetch-new-matches", async (req, res) => {
             headshots: roundStats.enemyHeadshots,
             matchtime: match.matchtime,
             accountId: matchListMessage.accountid,
+            result: ServerUtils.getMatchResult(roundStats, matchListMessage.accountid)
         });
         newMatchesList.push(newMatch);
     }
     await db.saveNewMatches(newMatchesList);
 
+    res.sendStatus(200);
+});
+
+app.get("/get-stats", async (req, res) => {
+    const matches = await db.getAllMatches();
+    const stats = ServerUtils.buildStats(matches);
+    res.json(stats);
+});
+
+app.get("/delete", async (req, res) => {
+    await db.deleteAllRecords();
     res.sendStatus(200);
 });
 

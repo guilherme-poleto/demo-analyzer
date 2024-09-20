@@ -72,11 +72,8 @@ export default function MainPage(props) {
                 <tbody>
                     {currMatches.map((match, index) => {
                         return (
-                            <tr
-                                key={index}
-                                className="row"
-                            >
-                                <td className="start">
+                            <tr key={index} className="row">
+                                <td className="start" style={{ color: Utils.getScoreColor(match.result) }}>
                                     {Utils.buildResultString(match.teamScores)}
                                 </td>
                                 <td>{match.playerScore.kills}</td>
