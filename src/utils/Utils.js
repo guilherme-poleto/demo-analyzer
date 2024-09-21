@@ -1,44 +1,13 @@
 import Constants from "./Constants";
 import axios from "axios";
-import moment from "moment";
 
 class Utils {
     static getLastMatches() {
         return axios.get(Constants.GET_MATCHES_URL);
     }
 
-    static getLastRoundData(data) {
-        for (let match of data) {
-            match.playerScore = this.getPlayerScore(match);
-            match.date = this.getMatchDate(match.matchtime);
-            match.isAnalyzed = match.parsedData != undefined;
-        }
-        return data;
-    }
-
     static buildResultString(result, switchedTeams) {
         return `${result[0]} - ${result[1]}`;
-    }
-
-    static getMapName() {
-        return axios.get(Constants.GET_MAP_NAME);
-    }
-
-    static getPlayerScore(matchData) { // do it before saving to db
-        const accId = matchData.accountId;
-        const index = matchData.accountIds.findIndex((e) => e == accId);
-        const kills = matchData.kills[index];
-        const deaths = matchData.deaths[index];
-        return {
-            kills: kills,
-            deaths: deaths,
-            KD: (kills / deaths).toFixed(2),
-            hsRate: Math.round((matchData.headshots[index] / kills) * 100)
-        };
-    }
-
-    static getMatchDate(time) {
-        return moment(time * 1000).format('DD/MM/YYYY');
     }
 
     static analyzeMatch(id) {

@@ -8,7 +8,6 @@ import { BusyIndicator } from "../BusyIndicator";
 
 export default function MatchPage() {
     const { id } = useParams();
-    const location = useLocation();
     const [match, setMatch] = useState();
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -21,8 +20,11 @@ export default function MatchPage() {
                 },
             })
             .then((res) => {
+                const parsedData = res.data.parsedData;
                 console.log(res.data);
-                setMatch(res.data.parsedData);
+                document.title = `Demo Analyzer :: ${parsedData.teamScore}:
+                    ${parsedData.enemyScore} - ${parsedData.mapName}`;
+                setMatch(res.data);
                 setLoading(false);
             });
     }, []);
@@ -36,23 +38,29 @@ export default function MatchPage() {
             <div>
                 <div className="score-header">
                     <div className="match-result">
-                        <div>{`${match.userResult} ${match.teamScore}:${match.enemyScore}`}</div>
+                        <div>{`${match.parsedData.userResult} ${match.parsedData.teamScore}:${match.parsedData.enemyScore}`}</div>
                     </div>
                     <div className="match-info-container">
                         <div className="match-info">
-                            <div>{match.mapName}</div>
+                            <div>{match.parsedData.mapName}</div>
                         </div>
                         <div className="match-info">
-                            <div>{match.server}</div>
+                            <div>{match.parsedData.server}</div>
                         </div>
                         <div className="match-info">
-                            <div>{Utils.getMatchDate(match.date)}</div>
+                            <div>{match.date}</div>
                         </div>
                     </div>
                 </div>
                 <div className="score-table">
-                    <ScoreTable side="team" data={match}></ScoreTable>
-                    <ScoreTable side="enemy" data={match}></ScoreTable>
+                    <ScoreTable
+                        side="team"
+                        data={match.parsedData}
+                    ></ScoreTable>
+                    <ScoreTable
+                        side="enemy"
+                        data={match.parsedData}
+                    ></ScoreTable>
                 </div>
             </div>
         </>
@@ -60,10 +68,7 @@ export default function MatchPage() {
 }
 
 const handleAvatarClick = (steamId) => {
-    window.open(
-        `https://steamcommunity.com/profiles/${steamId}/`,
-        "_blank"
-    );
+    window.open(`https://steamcommunity.com/profiles/${steamId}/`, "_blank");
 };
 
 function ScoreTable(props) {

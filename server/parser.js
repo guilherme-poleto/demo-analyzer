@@ -23,6 +23,7 @@ export default class Parser {
             "ace_rounds_total",
             "damage_total",
             "score",
+            "rank",
             "rank_if_win",
             "team_name",
             "is_matchmaking",
@@ -30,22 +31,26 @@ export default class Parser {
             "comp_rank_type",
             "team_rounds_total",
         ];
-        let scoreboard = parseTicks(demoPath, fields, [gameEndTick]);
+        const scoreboard = parseTicks(demoPath, fields, [gameEndTick]);
+        const userData = scoreboard.filter(
+            (elem) => this.steamIdToAccountId(elem.steamid) == match.accountId
+        )[0];
+        console.log(userData);
         const steamIdsList = scoreboard.map((element) => {
             return element.steamid;
         });
-        const avatarUrls = (await this.getSteamAvatarUrl(steamIdsList)).data.response.players;
-        scoreboard.forEach(element => {
-            element.avatarUrl = avatarUrls.find(elem => elem.steamid == element.steamid).avatarmedium;
+        const avatarUrls = (await this.getSteamAvatarUrl(steamIdsList)).data
+            .response.players;
+        scoreboard.forEach((element) => {
+            element.avatarUrl = avatarUrls.find(
+                (elem) => elem.steamid == element.steamid
+            ).avatarmedium;
         });
-        const userTeam = scoreboard.find(
-            (elem) => this.steamIdToAccountId(elem.steamid) == match.accountId
-        ).team_name;
         const teamData = scoreboard
-            .filter((elem) => elem.team_name == userTeam)
+            .filter((elem) => elem.team_name == userData.team_name)
             .sort((a, b) => b.kills_total - a.kills_total);
         const enemyData = scoreboard
-            .filter((elem) => elem.team_name != userTeam)
+            .filter((elem) => elem.team_name != userData.team_name)
             .sort((a, b) => b.kills_total - a.kills_total);
         let userResult;
         if (teamData[0].team_rounds_total > enemyData[0].team_rounds_total)
@@ -54,9 +59,10 @@ export default class Parser {
             userResult = "DEFEAT";
         else userResult = "DRAW";
         const res = {
+            userData: userData,
             teamData: teamData,
             enemyData: enemyData,
-            userTeam: userTeam,
+            userTeam: userData.team_name,
             teamScore: teamData[0].team_rounds_total,
             enemyScore: enemyData[0].team_rounds_total,
             userResult: userResult,
@@ -73,7 +79,10 @@ export default class Parser {
     }
 
     static async getSteamAvatarUrl(steamIds) {
-        const commaDellimitedList = steamIds.reduce((prev, curr) => prev + curr + ',', '');
+        const commaDellimitedList = steamIds.reduce(
+            (prev, curr) => prev + curr + ",",
+            ""
+        );
         return axios.get(Constants.API.GET_STEAM_AVATAR_URL, {
             params: {
                 key: process.env.STEAM_API_KEY,

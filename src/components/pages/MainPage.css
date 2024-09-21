@@ -1,5 +1,8 @@
 .match-list-container {
+    display: flex;
+    flex-direction: column;
     padding: 30px;
+    gap: 20px;
 }
 
 .match-list {
@@ -24,16 +27,17 @@
 }
 
 .match-list .end {
-    text-align: end;
     width: 5%;
+    text-align: center;
 }
 
 .match-list .start {
     text-align: start;
 }
 
-.match-list button {
+.main-buttons {
     font-size: 14px;
     color: #ced7e0;
+    font-weight: bold;
     background-color: #f84982;
 }

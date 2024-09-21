@@ -12,6 +12,7 @@ export default function MainPage(props) {
     const [error, setError] = useState(false);
 
     useEffect(() => {
+        document.title = "Demo Analyzer :: Matches";
         Utils.getLastMatches()
             .then((res) => {
                 updateMatchesTable(res.data);
@@ -25,8 +26,10 @@ export default function MainPage(props) {
     }, []);
 
     const updateMatchesTable = (data) => {
-        const matchesData = Utils.getLastRoundData(data);
-        setCurrMatches(matchesData);
+        data.forEach((element) => {
+            element.isAnalyzed = element.parsedData != undefined;
+        });
+        setCurrMatches(data);
     };
 
     const handleAnalyzeButton = async (matchData) => {
@@ -58,6 +61,13 @@ export default function MainPage(props) {
         <BusyIndicator></BusyIndicator>
     ) : (
         <div className="match-list-container">
+            <button
+                style={{ alignSelf: "end" }}
+                className="main-buttons"
+                onClick={handleFetchClick}
+            >
+                Refresh
+            </button>
             <table className="match-list">
                 <thead>
                     <tr className="row">
@@ -65,6 +75,7 @@ export default function MainPage(props) {
                         <th>Kills</th>
                         <th>Deaths</th>
                         <th>K/D</th>
+                        <th>HS Rate</th>
                         <th>Date</th>
                         <th className="end"></th>
                     </tr>
@@ -73,15 +84,26 @@ export default function MainPage(props) {
                     {currMatches.map((match, index) => {
                         return (
                             <tr key={index} className="row">
-                                <td className="start" style={{ color: Utils.getScoreColor(match.result) }}>
+                                <td
+                                    className="start"
+                                    style={{
+                                        color: Utils.getScoreColor(
+                                            match.result
+                                        ),
+                                        fontSize: "24px",
+                                        fontWeight: "600",
+                                    }}
+                                >
                                     {Utils.buildResultString(match.teamScores)}
                                 </td>
                                 <td>{match.playerScore.kills}</td>
                                 <td>{match.playerScore.deaths}</td>
                                 <td>{match.playerScore.KD}</td>
+                                <td>{match.playerScore.hsRate}%</td>
                                 <td>{match.date}</td>
                                 <td className="end">
                                     <button
+                                        className="main-buttons"
                                         onClick={() =>
                                             handleAnalyzeButton(match)
                                         }
@@ -94,7 +116,6 @@ export default function MainPage(props) {
                     })}
                 </tbody>
             </table>
-            <button onClick={handleFetchClick}>Fetch</button>
         </div>
     );
 }

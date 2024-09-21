@@ -16,6 +16,8 @@ const matchSchema = new mongoose.Schema({
   accountId: { type: Number, required: true },
   parsedData: { type: Object, required: false },
   result: { type: String, required: true },
+  playerScore: { type: Object, required: true },
+  date: { type: String, required: true }
 });
 
 export default matchSchema;

@@ -6,6 +6,7 @@ import ServerUtils from "./ServerUtils.js";
 import "dotenv/config";
 import DBConnection from "./db/db-connection.js";
 import Parser from "./parser.js";
+import moment from "moment";
 
 const app = express();
 app.use(cors());
@@ -60,6 +61,13 @@ app.get("/fetch-new-matches", async (req, res) => {
 
     for (let match of matchDataList) {
         const roundStats = match.roundstatsall[match.roundstatsall.length - 1];
+        console.log(roundStats);
+        const accId = matchListMessage.accountid;
+        const playerIndex = roundStats.reservation.accountIds.findIndex(
+            (e) => e == accId
+        );
+        const playerKills = roundStats.kills[playerIndex];
+        const playerDeaths = roundStats.deaths[playerIndex];
         const newMatch = new db.Match({
             ID: match.matchid.toString(),
             accountIds: roundStats.reservation.accountIds,
@@ -74,7 +82,17 @@ app.get("/fetch-new-matches", async (req, res) => {
             headshots: roundStats.enemyHeadshots,
             matchtime: match.matchtime,
             accountId: matchListMessage.accountid,
-            result: ServerUtils.getMatchResult(roundStats, matchListMessage.accountid)
+            result: ServerUtils.getMatchResult(
+                roundStats,
+                matchListMessage.accountid
+            ),
+            playerScore: {
+                kills: playerKills,
+                deaths: playerDeaths,
+                KD: (playerKills / playerDeaths).toFixed(2),
+                hsRate: Math.round((roundStats.enemyHeadshots[playerIndex] / playerKills) * 100),
+            },
+            date: moment(match.matchtime * 1000).format('DD/MM/YYYY')
         });
         newMatchesList.push(newMatch);
     }

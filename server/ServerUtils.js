@@ -64,14 +64,43 @@ export default class ServerUtils {
     }
 
     static buildStats(matches) {
-        const result = { wr: { wins: 0, losses: 0 } };
+        const result = {
+            wr: { wins: 0, losses: 0 },
+            kd: { kills: 0, deaths: 0, rate: 0 },
+        };
+        const analyzedMatches = [];
         matches.forEach((match) => {
             if (match.result == "DEFEAT") result.wr.losses += 1;
             if (match.result == "VICTORY") result.wr.wins += 1;
+            result.kd.kills += match.playerScore.kills;
+            result.kd.deaths += match.playerScore.deaths;
+            if (match.parsedData != undefined) analyzedMatches.push(match);
         });
+        result.kd.rate = (result.kd.kills / result.kd.deaths).toFixed(2);
         result.wr.percentage = `${Math.round(
             (result.wr.wins / result.wr.losses) * 100
         )}%`;
+        result.hsRate = Math.round(
+            matches.reduce(function (acc, obj) {
+                return acc + obj.playerScore.hsRate;
+            }, 0) / matches.length
+        );
+        result.totalMatches = matches.length;
+        const rankGraphData = [];
+        analyzedMatches
+            .sort((a, b) => a.matchtime - b.matchtime)
+            .map((value, index) =>
+                rankGraphData.push({
+                    x: index + 1,
+                    y: value.parsedData.userData.rank,
+                })
+            );
+        result.analyzed = {
+            parsedMatches: analyzedMatches.length,
+            rankGraph: {
+                data: rankGraphData,
+            },
+        };
         return result;
     }
 
