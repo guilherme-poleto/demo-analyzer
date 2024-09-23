@@ -4,7 +4,7 @@
     width: 100%;
     box-sizing: border-box;
     justify-content: space-between;
-    gap: 30px
+    gap: 30px;
 }
 
 .small-cards-container {

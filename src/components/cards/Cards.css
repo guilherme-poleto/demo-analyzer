@@ -1,0 +1,47 @@
+.tabs {
+    width: 100%;
+    display: flex;
+    background-color: #2f2b38;
+    justify-content: space-between;
+    border-bottom: 1px solid #444444;
+}
+
+.tab-button {
+    border-radius: 0;
+    background: none;
+    width: 100%;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    color: #555;
+}
+
+.tab-button.active {
+    color: #f84982;
+    border-top: 2px solid #f84982;
+}
+
+.card-content {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.progress-bar-container {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.progress-bar {
+    height: .5rem;
+    background-color: #de425b;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.success-bar {
+    background-color: #00b087;
+    height: .5rem;
+    transition: width 2s ease-in-out;
+}

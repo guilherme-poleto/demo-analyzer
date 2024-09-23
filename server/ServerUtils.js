@@ -4,7 +4,6 @@ import fs from "fs";
 import { execFile as execCallback } from "node:child_process";
 import { promisify } from "node:util";
 import axios from "axios";
-import Constants from "./constants.js";
 
 export default class ServerUtils {
     static async execBoiler() {
@@ -56,7 +55,7 @@ export default class ServerUtils {
                     console.log(stdout);
                     resolve({
                         code: 200,
-                        msg: "Demo file was downloaded and parsed sucessfully.",
+                        msg: "Demo file was downloaded and parsed successfully.",
                     });
                 }
             );
@@ -78,7 +77,7 @@ export default class ServerUtils {
         });
         result.kd.rate = (result.kd.kills / result.kd.deaths).toFixed(2);
         result.wr.percentage = `${Math.round(
-            (result.wr.wins / result.wr.losses) * 100
+            (result.wr.wins / (result.wr.wins + result.wr.losses)) * 100
         )}%`;
         result.hsRate = Math.round(
             matches.reduce(function (acc, obj) {
@@ -101,6 +100,25 @@ export default class ServerUtils {
                 data: rankGraphData,
             },
         };
+        const clutches = {
+            Overall: { total: 0, success: 0 },
+            "1v1": { total: 0, success: 0 },
+            "1v2": { total: 0, success: 0 },
+            "1v3": { total: 0, success: 0 },
+            "1v4": { total: 0, success: 0 },
+            "1v5": { total: 0, success: 0 },
+        };
+        analyzedMatches.forEach((match) => {
+            match.parsedData.clutches.forEach((clutch) => {
+                clutches[clutch.situation].total += 1;
+                clutches.Overall.total += 1;
+                if (clutch.success) {
+                    clutches[clutch.situation].success += 1;
+                    clutches.Overall.success += 1;
+                }
+            });
+        });
+        result.clutches = clutches;
         return result;
     }
 

@@ -1,4 +1,9 @@
-import { parseEvent, parseTicks, parseHeader } from "@laihoe/demoparser2";
+import {
+    parseEvent,
+    parseEvents,
+    parseTicks,
+    parseHeader,
+} from "@laihoe/demoparser2";
 import axios from "axios";
 import bignumber from "bignumber.js";
 import Constants from "./constants.js";
@@ -7,6 +12,7 @@ import ServerUtils from "./ServerUtils.js";
 export default class Parser {
     static async parseMatch(match) {
         const demoPath = `./demo-files/${match.demoFileName}`;
+        const clutches = this.getClutchesStats(match);
         let gameEndTick = Math.max(
             ...parseEvent(demoPath, "round_end").map((x) => x.tick)
         );
@@ -69,6 +75,7 @@ export default class Parser {
             server: server,
             mapName: headerInfo.map_name,
             date: match.matchtime,
+            clutches: clutches,
         };
         ServerUtils.deleteFile(demoPath);
         return res;
@@ -89,5 +96,66 @@ export default class Parser {
                 steamids: commaDellimitedList,
             },
         });
+    }
+
+    static getClutchesStats(match) {
+        const demoPath = `./demo-files/${match.demoFileName}`;
+        let deaths = parseEvents(
+            demoPath,
+            ["player_death", "begin_new_match"],
+            []
+        );
+
+        const matchStartTick =
+            deaths.find((event) => event.event_name === "begin_new_match")
+                ?.tick || 0;
+        deaths = deaths.filter((event) => event.tick > matchStartTick);
+
+        const wantedTicks = deaths.map((v) => v.tick);
+
+        const allTicksArray = parseTicks(
+            demoPath,
+            ["is_alive", "team_name", "total_rounds_played"],
+            wantedTicks
+        );
+
+        let round_ends = parseEvent(demoPath, "round_end");
+        const clutchesArr = [];
+        const roundSet = new Set();
+        for (let tick of wantedTicks) {
+            const tickDataSlice = allTicksArray.filter(
+                (elem) => elem.tick == tick
+            );
+            const round = tickDataSlice[0].total_rounds_played;
+            if (round >= round_ends.length) break;
+            if (roundSet.has(round)) continue;
+
+            const userIndex = tickDataSlice.findIndex(
+                (data) =>
+                    this.steamIdToAccountId(data.steamid) == match.accountId
+            );
+            if (!tickDataSlice[userIndex]?.is_alive) {
+                continue;
+            }
+            const userTeam = tickDataSlice[userIndex].team_name;
+            const enemyAlive = tickDataSlice.filter(
+                (data) => data.is_alive && data.team_name != userTeam
+            ).length;
+            const teamAlive = tickDataSlice.filter(
+                (data) => data.is_alive && data.team_name == userTeam
+            ).length;
+            if (teamAlive > 1 || enemyAlive <= 0) {
+                continue;
+            }
+            const winner = round_ends[round].winner;
+            const result = {
+                round: round + 1,
+                situation: `1v${enemyAlive}`,
+                success: winner == userTeam,
+            };
+            roundSet.add(round);
+            clutchesArr.push(result);
+        }
+        return clutchesArr;
     }
 }

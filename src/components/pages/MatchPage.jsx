@@ -22,8 +22,7 @@ export default function MatchPage() {
             .then((res) => {
                 const parsedData = res.data.parsedData;
                 console.log(res.data);
-                document.title = `Demo Analyzer :: ${parsedData.teamScore}:
-                    ${parsedData.enemyScore} - ${parsedData.mapName}`;
+                document.title = `Demo Analyzer :: ${parsedData.teamScore}:${parsedData.enemyScore} - ${parsedData.mapName}`;
                 setMatch(res.data);
                 setLoading(false);
             });

@@ -10,6 +10,7 @@ import {
 import { BusyIndicator } from "../BusyIndicator";
 import axios from "axios";
 import Constants from "../../utils/Constants";
+import ClutchingCard from "../cards/ClutchingCard";
 
 export default function StatsPage() {
     const [loading, setLoading] = useState(true);
@@ -121,6 +122,7 @@ export default function StatsPage() {
                     Analyzed Matches - {stats.analyzed.parsedMatches} parsed
                 </h2>
                 <div className="stats-row">
+                    <ClutchingCard stats={stats}></ClutchingCard>
                     <div className="card">
                         <h1>Rating History</h1>
                         <VictoryChart
@@ -166,6 +168,10 @@ export default function StatsPage() {
                                 }}
                             />
                             <VictoryLine
+                                animate={{
+                                    duration: 1000,
+                                    onLoad: { duration: 1000 },
+                                }}
                                 interpolation={"natural"}
                                 data={stats.analyzed.rankGraph.data}
                                 style={{
