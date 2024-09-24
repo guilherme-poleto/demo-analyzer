@@ -10,9 +10,14 @@ import Constants from "./constants.js";
 import ServerUtils from "./ServerUtils.js";
 
 export default class Parser {
-    static async parseMatch(match) {
-        const demoPath = `./demo-files/${match.demoFileName}`;
-        const clutches = this.getClutchesStats(match);
+    constructor(match) {
+        this.match = match;
+    }
+
+    async parseMatch() {
+        const demoPath = `./demo-files/${this.match.demoFileName}`;
+        const clutches = this.getClutchesStats();
+        const chatLog = this.getChatLog();
         let gameEndTick = Math.max(
             ...parseEvent(demoPath, "round_end").map((x) => x.tick)
         );
@@ -39,7 +44,7 @@ export default class Parser {
         ];
         const scoreboard = parseTicks(demoPath, fields, [gameEndTick]);
         const userData = scoreboard.filter(
-            (elem) => this.steamIdToAccountId(elem.steamid) == match.accountId
+            (elem) => this.steamIdToAccountId(elem.steamid) == this.match.accountId
         )[0];
         console.log(userData);
         const steamIdsList = scoreboard.map((element) => {
@@ -74,18 +79,15 @@ export default class Parser {
             userResult: userResult,
             server: server,
             mapName: headerInfo.map_name,
-            date: match.matchtime,
+            date: this.match.matchtime,
             clutches: clutches,
+            chatLog: chatLog
         };
         ServerUtils.deleteFile(demoPath);
         return res;
     }
 
-    static steamIdToAccountId(accId) {
-        return new bignumber(accId).minus("76561197960265728") + "";
-    }
-
-    static async getSteamAvatarUrl(steamIds) {
+    async getSteamAvatarUrl(steamIds) {
         const commaDellimitedList = steamIds.reduce(
             (prev, curr) => prev + curr + ",",
             ""
@@ -98,8 +100,21 @@ export default class Parser {
         });
     }
 
-    static getClutchesStats(match) {
-        const demoPath = `./demo-files/${match.demoFileName}`;
+    getChatLog() {
+        const demoPath = `./demo-files/${this.match.demoFileName}`;
+        const messageEvents = parseEvent(demoPath, "chat_message");
+        const chatLog = [];
+        messageEvents.map((value) => {
+            chatLog.push({
+                user: value.user_name,
+                message: value.chat_message,
+            });
+        });
+        return chatLog;
+    }
+
+    getClutchesStats() {
+        const demoPath = `./demo-files/${this.match.demoFileName}`;
         let deaths = parseEvents(
             demoPath,
             ["player_death", "begin_new_match"],
@@ -132,7 +147,7 @@ export default class Parser {
 
             const userIndex = tickDataSlice.findIndex(
                 (data) =>
-                    this.steamIdToAccountId(data.steamid) == match.accountId
+                    this.steamIdToAccountId(data.steamid) == this.match.accountId
             );
             if (!tickDataSlice[userIndex]?.is_alive) {
                 continue;
@@ -157,5 +172,9 @@ export default class Parser {
             clutchesArr.push(result);
         }
         return clutchesArr;
+    }
+
+    steamIdToAccountId(accId) {
+        return new bignumber(accId).minus("76561197960265728") + "";
     }
 }

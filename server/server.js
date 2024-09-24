@@ -42,7 +42,8 @@ app.post("/analyze-match", async (req, res) => {
         return;
     }
     await ServerUtils.downloadFile(match);
-    const scoreboard = await Parser.parseMatch(match);
+    const parser = new Parser(match);
+    const scoreboard = await parser.parseMatch();
     await db.updateMatch(matchId, { parsedData: scoreboard });
     res.sendStatus(200);
 });

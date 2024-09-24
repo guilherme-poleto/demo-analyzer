@@ -52,6 +52,7 @@ export default function MatchPage() {
                     </div>
                 </div>
                 <div className="score-table">
+                    <div>Scoreboard</div>
                     <ScoreTable
                         side="team"
                         data={match.parsedData}
@@ -60,6 +61,15 @@ export default function MatchPage() {
                         side="enemy"
                         data={match.parsedData}
                     ></ScoreTable>
+                </div>
+                <div className="chat-log-container">
+                    <div>Chat Log</div>
+                    <textarea className="chat-log"
+                        value={match.parsedData.chatLog
+                            .map((msg) => `• ${msg.user}: ${msg.message}`)
+                            .join("\n")}
+                        readOnly
+                    />
                 </div>
             </div>
         </>

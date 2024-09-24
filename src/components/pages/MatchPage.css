@@ -2,7 +2,6 @@
     display: grid;
     padding: 20px;
     grid-gap: .75rem;
-    margin-bottom: 20px;
     background-image: url(../../assets/images/cs2banner.png);
     background-repeat: no-repeat;
     background-size: cover;
@@ -39,7 +38,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 0 20px;
+    padding: 20px;
 }
 
 .scoreboard {
@@ -66,4 +65,25 @@
     height: 2rem;
     margin-right: 1rem;
     cursor: pointer;
+}
+
+.chat-log-container {
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+    padding: 20px;
+    padding-top: 0px;
+}
+
+.chat-log {
+    height: 100%;
+    background-color: rgb(27, 27, 27);
+    font-family: Inconsolata;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 10px;
+    margin-top: 10px;
+    border: 0px;
+    border-radius: 3px;
+    resize: none;
 }

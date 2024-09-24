@@ -63,7 +63,7 @@ export default function ClutchingCard(props) {
 
     return (
         <div className="card" style={{ padding: "15px 0px 0px 0px" }}>
-            <h1 style={{marginBottom: "10px"}}>Clutches</h1>
+            <h1 style={{ marginBottom: "10px" }}>Clutches</h1>
             <div className="tabs">
                 <CardTab
                     tab="Overall"

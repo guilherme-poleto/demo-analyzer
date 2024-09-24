@@ -43,5 +43,4 @@
 .success-bar {
     background-color: #00b087;
     height: .5rem;
-    transition: width 2s ease-in-out;
 }
