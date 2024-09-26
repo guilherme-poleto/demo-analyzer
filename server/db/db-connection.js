@@ -25,7 +25,10 @@ class DBConnection {
     }
 
     deleteAllRecords() {
-        return this.Match.deleteMany({});
+        return this.Match.updateMany(
+            { parsedData: { $exists: true } },
+            { $unset: { parsedData: "" } }
+        );
     }
 
     getAllMatches() {

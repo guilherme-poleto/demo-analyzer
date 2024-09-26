@@ -12,17 +12,71 @@ import ServerUtils from "./ServerUtils.js";
 export default class Parser {
     constructor(match) {
         this.match = match;
+        this.demoPath = `./demo-files/${this.match.demoFileName}`;
     }
 
     async parseMatch() {
-        const demoPath = `./demo-files/${this.match.demoFileName}`;
         const clutches = this.getClutchesStats();
         const chatLog = this.getChatLog();
-        let gameEndTick = Math.max(
-            ...parseEvent(demoPath, "round_end").map((x) => x.tick)
+        const matchLog = this.getMatchLog();
+        const scoreboard = await this.getScoreboard();
+        const res = {
+            clutches: clutches,
+            chatLog: chatLog,
+            scoreboard: scoreboard,
+            matchLog: matchLog,
+        };
+        ServerUtils.deleteFile(this.demoPath);
+        return res;
+    }
+
+    async getSteamAvatarUrl(steamIds) {
+        const commaDellimitedList = steamIds.reduce(
+            (prev, curr) => prev + curr + ",",
+            ""
+        );
+        return axios.get(Constants.API.GET_STEAM_AVATAR_URL, {
+            params: {
+                key: process.env.STEAM_API_KEY,
+                steamids: commaDellimitedList,
+            },
+        });
+    }
+
+    getMatchLog() {
+        const newMatchEvent = parseEvents(this.demoPath, ["begin_new_match"]);
+        const startTick =
+            newMatchEvent.find(
+                (event) => event.event_name === "begin_new_match"
+            )?.tick || 0;
+        const lastTick = Math.max(
+            ...parseEvent(this.demoPath, "round_end").map((x) => x.tick)
+        );
+        const wantedTicks = [];
+        for (let i = startTick; i < lastTick; i += 100) {
+            wantedTicks.push(i);
+        }
+        wantedTicks.push(lastTick);
+
+        const cords = parseTicks(this.demoPath, ["X", "Y"], wantedTicks);
+        const pos = {};
+        cords.forEach((value) => {
+            pos[value.tick] = pos[value.tick] || [];
+            pos[value.tick].push({
+                name: value.name,
+                x: this.getPosX(value.X),
+                y: this.getPosY(value.Y),
+            });
+        });
+        return { startTick: startTick, lastTick: lastTick, allTicksData: pos };
+    }
+
+    async getScoreboard() {
+        const gameEndTick = Math.max(
+            ...parseEvent(this.demoPath, "round_end").map((x) => x.tick)
         );
         const regex = /Valve Counter-Strike 2 (\w+) Server/;
-        const headerInfo = parseHeader(demoPath);
+        const headerInfo = parseHeader(this.demoPath);
         const server = headerInfo.server_name.match(regex)[1];
 
         let fields = [
@@ -42,25 +96,25 @@ export default class Parser {
             "comp_rank_type",
             "team_rounds_total",
         ];
-        const scoreboard = parseTicks(demoPath, fields, [gameEndTick]);
-        const userData = scoreboard.filter(
-            (elem) => this.steamIdToAccountId(elem.steamid) == this.match.accountId
+        const tickData = parseTicks(this.demoPath, fields, [gameEndTick]);
+        const userData = tickData.filter(
+            (elem) =>
+                this.steamIdToAccountId(elem.steamid) == this.match.accountId
         )[0];
-        console.log(userData);
-        const steamIdsList = scoreboard.map((element) => {
+        const steamIdsList = tickData.map((element) => {
             return element.steamid;
         });
         const avatarUrls = (await this.getSteamAvatarUrl(steamIdsList)).data
             .response.players;
-        scoreboard.forEach((element) => {
+        tickData.forEach((element) => {
             element.avatarUrl = avatarUrls.find(
                 (elem) => elem.steamid == element.steamid
             ).avatarmedium;
         });
-        const teamData = scoreboard
+        const teamData = tickData
             .filter((elem) => elem.team_name == userData.team_name)
             .sort((a, b) => b.kills_total - a.kills_total);
-        const enemyData = scoreboard
+        const enemyData = tickData
             .filter((elem) => elem.team_name != userData.team_name)
             .sort((a, b) => b.kills_total - a.kills_total);
         let userResult;
@@ -69,7 +123,7 @@ export default class Parser {
         else if (teamData[0].team_rounds_total < enemyData[0].team_rounds_total)
             userResult = "DEFEAT";
         else userResult = "DRAW";
-        const res = {
+        const scoreboard = {
             userData: userData,
             teamData: teamData,
             enemyData: enemyData,
@@ -80,29 +134,12 @@ export default class Parser {
             server: server,
             mapName: headerInfo.map_name,
             date: this.match.matchtime,
-            clutches: clutches,
-            chatLog: chatLog
         };
-        ServerUtils.deleteFile(demoPath);
-        return res;
-    }
-
-    async getSteamAvatarUrl(steamIds) {
-        const commaDellimitedList = steamIds.reduce(
-            (prev, curr) => prev + curr + ",",
-            ""
-        );
-        return axios.get(Constants.API.GET_STEAM_AVATAR_URL, {
-            params: {
-                key: process.env.STEAM_API_KEY,
-                steamids: commaDellimitedList,
-            },
-        });
+        return scoreboard;
     }
 
     getChatLog() {
-        const demoPath = `./demo-files/${this.match.demoFileName}`;
-        const messageEvents = parseEvent(demoPath, "chat_message");
+        const messageEvents = parseEvent(this.demoPath, "chat_message");
         const chatLog = [];
         messageEvents.map((value) => {
             chatLog.push({
@@ -114,9 +151,8 @@ export default class Parser {
     }
 
     getClutchesStats() {
-        const demoPath = `./demo-files/${this.match.demoFileName}`;
         let deaths = parseEvents(
-            demoPath,
+            this.demoPath,
             ["player_death", "begin_new_match"],
             []
         );
@@ -129,12 +165,12 @@ export default class Parser {
         const wantedTicks = deaths.map((v) => v.tick);
 
         const allTicksArray = parseTicks(
-            demoPath,
+            this.demoPath,
             ["is_alive", "team_name", "total_rounds_played"],
             wantedTicks
         );
 
-        let round_ends = parseEvent(demoPath, "round_end");
+        const round_ends = parseEvent(this.demoPath, "round_end");
         const clutchesArr = [];
         const roundSet = new Set();
         for (let tick of wantedTicks) {
@@ -147,7 +183,8 @@ export default class Parser {
 
             const userIndex = tickDataSlice.findIndex(
                 (data) =>
-                    this.steamIdToAccountId(data.steamid) == this.match.accountId
+                    this.steamIdToAccountId(data.steamid) ==
+                    this.match.accountId
             );
             if (!tickDataSlice[userIndex]?.is_alive) {
                 continue;
@@ -176,5 +213,12 @@ export default class Parser {
 
     steamIdToAccountId(accId) {
         return new bignumber(accId).minus("76561197960265728") + "";
+    }
+
+    getPosX(pos_x) {
+        return (Math.abs(pos_x + 2476) / 4.4 / 2).toFixed(2);
+    }
+    getPosY(pos_y) {
+        return (Math.abs(pos_y - 3239) / 4.4 / 2).toFixed(2);
     }
 }

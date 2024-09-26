@@ -91,7 +91,7 @@ export default class ServerUtils {
             .map((value, index) =>
                 rankGraphData.push({
                     x: index + 1,
-                    y: value.parsedData.userData.rank,
+                    y: value.parsedData.scoreboard.userData.rank,
                 })
             );
         result.analyzed = {

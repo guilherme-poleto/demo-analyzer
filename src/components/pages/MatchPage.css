@@ -1,7 +1,7 @@
 .score-header {
     display: grid;
     padding: 20px;
-    grid-gap: .75rem;
+    grid-gap: 0.75rem;
     background-image: url(../../assets/images/cs2banner.png);
     background-repeat: no-repeat;
     background-size: cover;
@@ -38,7 +38,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 20px;
+    margin-bottom: 20px;
 }
 
 .scoreboard {
@@ -46,7 +46,8 @@
     border-spacing: 2px;
 }
 
-.scoreboard th, .scoreboard td {
+.scoreboard th,
+.scoreboard td {
     text-align: start;
     padding: 10px;
     background: #25222c;
@@ -67,12 +68,81 @@
     cursor: pointer;
 }
 
-.chat-log-container {
+.game-log-container {
+    margin-bottom: 20px;
+}
+
+.game-log {
     display: flex;
     flex-direction: column;
+    height: 800px;
+    background-color: #25222c;
+    margin-top: 10px;
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid #2f2b38;
+}
+
+.game-data {
+
+}
+
+.radar {
+    position: relative;
+    height: 512px;
+    width: 512px;
+    background-image: url(../../assets/maps/de_dust2_radar_psd.png);
+    background-size: cover;
+}
+
+.position {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: red;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.time-line {
+    text-align: center;
+    background-color: black;
+    height: 10%;
+}
+
+.slider-container {
+    height: 100%;
+}
+
+.slider {
+    margin: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 100%;
+    background: rgb(27, 27, 27);
+    opacity: 0.7;
+    overflow: hidden;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 5px;
+    height: 160px;
+    background-color: #f84982;
+    cursor: pointer;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.chat-log-container {
+    display: flex;
+    width: 30%;
+    flex-direction: column;
     height: 400px;
-    padding: 20px;
-    padding-top: 0px;
 }
 
 .chat-log {
@@ -86,4 +156,5 @@
     border: 0px;
     border-radius: 3px;
     resize: none;
+    border: 1px solid #2f2b38;
 }

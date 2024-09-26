@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import "./MatchPage.css";
 import axios from "axios";
@@ -11,6 +11,9 @@ export default function MatchPage() {
     const [match, setMatch] = useState();
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(true);
+    const slider = useRef();
+    const [currTick, setCurrTick] = useState();
+    const [matchLog, setMatchLog] = useState({ pos: [] });
 
     useEffect(() => {
         axios
@@ -22,11 +25,25 @@ export default function MatchPage() {
             .then((res) => {
                 const parsedData = res.data.parsedData;
                 console.log(res.data);
-                document.title = `Demo Analyzer :: ${parsedData.teamScore}:${parsedData.enemyScore} - ${parsedData.mapName}`;
+                document.title = `Demo Analyzer :: ${parsedData.scoreboard.teamScore}:${parsedData.scoreboard.enemyScore} - ${parsedData.scoreboard.mapName}`;
                 setMatch(res.data);
                 setLoading(false);
+                setCurrTick(res.data.parsedData.matchLog.startTick);
+            })
+            .catch(() => {
+                setError(true);
             });
     }, []);
+
+    useEffect(() => {
+        if (loading) return;
+        const pos = match.parsedData.matchLog.allTicksData[currTick] || [];
+        setMatchLog({ pos: pos });
+    }, [currTick]);
+
+    const handleSliderChange = () => {
+        setCurrTick(parseInt(slider.current.value));
+    };
 
     if (error) return <>Match not found.</>;
 
@@ -37,39 +54,94 @@ export default function MatchPage() {
             <div>
                 <div className="score-header">
                     <div className="match-result">
-                        <div>{`${match.parsedData.userResult} ${match.parsedData.teamScore}:${match.parsedData.enemyScore}`}</div>
+                        <div>{`${match.parsedData.scoreboard.userResult} ${match.parsedData.scoreboard.teamScore}:${match.parsedData.scoreboard.enemyScore}`}</div>
                     </div>
                     <div className="match-info-container">
                         <div className="match-info">
-                            <div>{match.parsedData.mapName}</div>
+                            <div>{match.parsedData.scoreboard.mapName}</div>
                         </div>
                         <div className="match-info">
-                            <div>{match.parsedData.server}</div>
+                            <div>{match.parsedData.scoreboard.server}</div>
                         </div>
                         <div className="match-info">
                             <div>{match.date}</div>
                         </div>
                     </div>
                 </div>
-                <div className="score-table">
-                    <div>Scoreboard</div>
-                    <ScoreTable
-                        side="team"
-                        data={match.parsedData}
-                    ></ScoreTable>
-                    <ScoreTable
-                        side="enemy"
-                        data={match.parsedData}
-                    ></ScoreTable>
-                </div>
-                <div className="chat-log-container">
-                    <div>Chat Log</div>
-                    <textarea className="chat-log"
-                        value={match.parsedData.chatLog
-                            .map((msg) => `• ${msg.user}: ${msg.message}`)
-                            .join("\n")}
-                        readOnly
-                    />
+                <div style={{ padding: "20px" }}>
+                    <div className="score-table">
+                        <div>Scoreboard</div>
+                        <ScoreTable
+                            side="team"
+                            data={match.parsedData.scoreboard}
+                        ></ScoreTable>
+                        <ScoreTable
+                            side="enemy"
+                            data={match.parsedData.scoreboard}
+                        ></ScoreTable>
+                    </div>
+                    <div className="game-log-container">
+                        <div>Game Log</div>
+                        <div className="game-log">
+                            <div className="game-data">
+                                <div className="radar">
+                                    {matchLog.pos.map((value, index) => {
+                                        return (
+                                            <div
+                                                key={index}
+                                                className="position"
+                                                style={{
+                                                    left: `${value.x}px`,
+                                                    top: `${value.y}px`,
+                                                }}
+                                            ></div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                            <div className="time-line">
+                                <div className="slider-container">
+                                    <input
+                                        id="range-slider"
+                                        ref={slider}
+                                        className="slider"
+                                        type="range"
+                                        min={
+                                            match.parsedData.matchLog.startTick
+                                        }
+                                        max={match.parsedData.matchLog.lastTick}
+                                        step="100"
+                                        value={currTick}
+                                        onChange={handleSliderChange}
+                                    ></input>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setCurrTick((prev) => prev - 100);
+                                    }}
+                                >
+                                    {"<"}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setCurrTick((prev) => prev + 100);
+                                    }}
+                                >
+                                    {">"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="chat-log-container">
+                        <div>Chat Log</div>
+                        <textarea
+                            className="chat-log"
+                            value={match.parsedData.chatLog
+                                .map((msg) => `• ${msg.user}: ${msg.message}`)
+                                .join("\n")}
+                            readOnly
+                        />
+                    </div>
                 </div>
             </div>
         </>
