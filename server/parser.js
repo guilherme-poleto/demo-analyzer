@@ -58,7 +58,7 @@ export default class Parser {
         }
         wantedTicks.push(lastTick);
 
-        const cords = parseTicks(this.demoPath, ["X", "Y"], wantedTicks);
+        const cords = parseTicks(this.demoPath, ["X", "Y", "is_alive", "team_name"], wantedTicks);
         const pos = {};
         cords.forEach((value) => {
             pos[value.tick] = pos[value.tick] || [];
@@ -66,6 +66,8 @@ export default class Parser {
                 name: value.name,
                 x: this.getPosX(value.X),
                 y: this.getPosY(value.Y),
+                isAlive: value.is_alive,
+                teamName: value.team_name
             });
         });
         return { startTick: startTick, lastTick: lastTick, allTicksData: pos };

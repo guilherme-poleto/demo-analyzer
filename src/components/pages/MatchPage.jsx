@@ -26,6 +26,13 @@ export default function MatchPage() {
                 const parsedData = res.data.parsedData;
                 console.log(res.data);
                 document.title = `Demo Analyzer :: ${parsedData.scoreboard.teamScore}:${parsedData.scoreboard.enemyScore} - ${parsedData.scoreboard.mapName}`;
+                const allPlayersAvatars = parsedData.scoreboard.teamData
+                    .concat(parsedData.scoreboard.enemyData)
+                    .map((value) => {
+                        return { name: value.name, avatarUrl: value.avatarUrl };
+                    });
+                res.data.parsedData.scoreboard.allPlayersAvatars =
+                    allPlayersAvatars;
                 setMatch(res.data);
                 setLoading(false);
                 setCurrTick(res.data.parsedData.matchLog.startTick);
@@ -91,8 +98,20 @@ export default function MatchPage() {
                                                 key={index}
                                                 className="position"
                                                 style={{
+                                                    display: !value.teamName || !value.isAlive
+                                                        ? "none"
+                                                        : "block",
                                                     left: `${value.x}px`,
                                                     top: `${value.y}px`,
+                                                    backgroundImage: `url(${
+                                                        match.parsedData.scoreboard.allPlayersAvatars.find(
+                                                            (elem) =>
+                                                                elem.name ==
+                                                                value.name
+                                                        )?.avatarUrl
+                                                    })`,
+                                                    backgroundSize: "cover",
+                                                    outline: `3px solid ${value.teamName == "TERRORIST" ? "#d39a40" : "#5e78ad"}`
                                                 }}
                                             ></div>
                                         );
