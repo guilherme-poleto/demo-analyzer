@@ -94,26 +94,50 @@ export default function MatchPage() {
                                 <div className="radar">
                                     {matchLog.pos.map((value, index) => {
                                         return (
-                                            <div
-                                                key={index}
-                                                className="position"
-                                                style={{
-                                                    display: !value.teamName || !value.isAlive
-                                                        ? "none"
-                                                        : "block",
-                                                    left: `${value.x}px`,
-                                                    top: `${value.y}px`,
-                                                    backgroundImage: `url(${
-                                                        match.parsedData.scoreboard.allPlayersAvatars.find(
-                                                            (elem) =>
-                                                                elem.name ==
-                                                                value.name
-                                                        )?.avatarUrl
-                                                    })`,
-                                                    backgroundSize: "cover",
-                                                    outline: `3px solid ${value.teamName == "TERRORIST" ? "#d39a40" : "#5e78ad"}`
-                                                }}
-                                            ></div>
+                                            <div key={index}>
+                                                <div
+                                                    style={{
+                                                        position: "absolute",
+                                                        left: `${value.x}px`,
+                                                        top: `${value.y}px`,
+                                                        transform:
+                                                            "translate(-50%, -50%)",
+                                                    }}
+                                                >
+                                                    <span className="player-name">
+                                                        {value.name}
+                                                    </span>
+                                                    <div
+                                                        className="position"
+                                                        style={{
+                                                            display:
+                                                                !value.teamName
+                                                                    ? "none"
+                                                                    : "block",
+                                                            backgroundImage: `url(${
+                                                                value.isAlive
+                                                                    ? match.parsedData.scoreboard.allPlayersAvatars.find(
+                                                                          (
+                                                                              elem
+                                                                          ) =>
+                                                                              elem.name ==
+                                                                              value.name
+                                                                      )
+                                                                          ?.avatarUrl
+                                                                    : "/src/assets/images/dead-icon.webp"
+                                                            })`,
+                                                            backgroundSize:
+                                                                "cover",
+                                                            outline: `${value.isAlive ? `3px solid ${
+                                                                value.teamName ==
+                                                                "TERRORIST"
+                                                                    ? "#d39a40"
+                                                                    : "#5e78ad"
+                                                            }` : "0px"} `,
+                                                        }}
+                                                    ></div>
+                                                </div>
+                                            </div>
                                         );
                                     })}
                                 </div>

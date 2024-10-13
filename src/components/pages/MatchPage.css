@@ -83,10 +83,6 @@
     border: 1px solid #2f2b38;
 }
 
-.game-data {
-
-}
-
 .radar {
     position: relative;
     height: 512px;
@@ -96,11 +92,20 @@
 }
 
 .position {
-    position: absolute;
+    position: relative;
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    transform: translate(-50%, -50%);
+}
+
+.player-name {
+    color: rgb(200, 200, 200);
+    font-size: 11px;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translate(-50%);
+    text-wrap: nowrap;
 }
 
 .time-line {
